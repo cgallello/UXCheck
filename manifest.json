@@ -1,0 +1,51 @@
+{
+  "name": "UX Check",
+  "description": "Run a heuristic evaluation on your website",
+  "version": "1.0.6",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "unlimitedStorage",
+    "<all_urls>"
+  ],
+  "icons": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    },
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "css":["style.css"],
+    "js": [ "jquery.min.js","jquery-ui.min.js", "content.js"],
+    "run_at": "document_end"
+  }],
+  "background": {
+    "scripts": [ "jquery.min.js", "background.js"],
+    "persistent": false
+  },
+
+  "browser_action": {
+    "default_title": "Evaluation",
+    "default_icon": {
+      "19": "browserActionIcon19.png",
+      "38": "browserActionIcon38.png"
+    }
+  },
+  "web_accessible_resources": [
+    "tray.html",
+    "menu.png",
+    "plus.png",
+    "FileSaver.js",
+    "jszip.js",
+    "jszip-deflate.js",
+    "jszip-inflate.js",
+    "jszip-load.js",
+    "linq.js",
+    "ltxml-extensions.js",
+    "ltxml.js",
+    "openxml.js",
+    "close.png"
+  ],
+  "manifest_version": 2,
+  "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'"
+}
