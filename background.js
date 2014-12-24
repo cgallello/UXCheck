@@ -4,7 +4,6 @@
 
 window.evaluation_in_progress = false;
 
-
 // New tab is opened DURING evaluation
 
   chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
@@ -79,6 +78,12 @@ chrome.runtime.onMessage.addListener(
       }
     }*/
 
+    // Close button clicked, evaluation stopped
+
+    if (request.greeting == "close_button_clicked"){
+      window.evaluation_in_progress = false;
+    }
+
     // Stop evaluation
 
     if (request.greeting == "stop_evaluation"){
@@ -113,7 +118,6 @@ chrome.runtime.onMessage.addListener(
     // Get data
 
     if (request.greeting == "getData"){
-      console.log('background.js received a message telling me to get some data');
       var saved_data_string = localStorage.getItem('saved_data');
       var saved_data = $.parseJSON(saved_data_string);
       chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
@@ -126,8 +130,6 @@ chrome.runtime.onMessage.addListener(
     // Pass evaluation info to evaluation page
 
     if (request.greeting == "gimme_evaluation_info"){
-      console.log('background.js received a message from evaluation_page.js telling me to give eval info');
-
       sendResponse({greeting: "heres_ur_data", evalInfo: window.evaluation_html});
       //chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         //chrome.tabs.sendMessage(tabs[0].id, {greeting: "heres_ur_data", evalInfo: window.evaluation_html}, function(response) {
