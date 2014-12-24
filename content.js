@@ -570,6 +570,51 @@ $(document).ready(function () {
 
 							}); // end onclick of  view_progress
 
+							// On click of "Settings"
+					  		
+					  		$(document).on('click', '#he_open_settings', function(e){ 
+
+					  			// Hide the overlays/callout if they're visible
+
+					  				close_callout();
+					  				hide_overlays();
+
+					  			// Load previously saved data
+
+									chrome.storage.local.get('he_settings', function(result){ 
+										
+										// Unpack results
+
+											if (result.saved_data == undefined){
+												var he_settings_saved_data = [];
+												var save_id = 0;
+											} else {
+												var he_settings_saved_data = result.he_settings_saved_data;
+												var save_id = result.saved_data.length;
+											}
+
+										// Create an overlay
+
+											$('#he_settings').css('background-color','rgba(40,40,40,0.98)');
+											$('#he_settings').show();
+
+											
+										// Paint the table
+											$('#he_settings').empty();
+											$('#he_settings').html("<h2>SETTINGS</h2>");
+
+										// Close the View Progress table
+											$('#he_settings_close').click(function(){
+												$('#he_settings').html('');
+												$('#he_settings').css('background-color', 'rgba(0,0,0,0)');
+												$('#he_settings').hide();
+												window.hover_enabled = true;
+											});
+
+									}); //end chrome.local.get callback
+
+							}); // end onclick of  view_progress
+
 					  	// On click of "Stop Evaluation", tell Background.js to open the eval page 
 					  		
 					  		$(document).on('click', '#stop_evaluation', function(e){ 

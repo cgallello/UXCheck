@@ -697,6 +697,47 @@ li.ui-state-focus{
 }
 */
 
+/* Settings */
+#he_settings{
+    width:100% !important; /*calc(100% - 400px) !important;*/
+    left:0px !important;
+    height:100% !important;
+    width:100% !important;
+    z-index:2000000055 !important;
+    position:fixed !important;
+    display:none;
+    overflow:scroll !important;
+    cursor:default !important;
+    font-family: Avenir, sans-serif !important;
+}
+
+#he_settings h2{
+    margin: 50px 0 0 40px !important;
+    font-family: Avenir, sans-serif !important;
+    color:white !important;
+    font-size:20px !important;
+    font-weight:400 !important;
+    text-align: center !important;
+}
+
+
+#he_settings_close{
+    position:fixed !important;
+    top:50px !important;
+    right:40px !important;
+    font-size:30px !important;
+    z-index:2000000060 !important;
+    cursor:pointer !important;
+}
+
+#he_settings_close:hover{
+    background-color:rgba(255,255,255,0.2) !important;
+}
+
+#he_settings_close:active{
+    background-color:rgba(255,255,255,0.4) !important;
+}
+
 /* Progress */
 #he_progress{
     width:100% !important; /*calc(100% - 400px) !important;*/
