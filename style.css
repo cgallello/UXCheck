@@ -960,7 +960,7 @@ li.ui-state-focus{
 }
 
 .he_notification_container{
-    z-index:2000000250 !important;
+    z-index:2000000050 !important;
     position:fixed !important;
     display:block !important;
     width:calc(100% - 460px) !important;
@@ -1001,3 +1001,60 @@ li.ui-state-focus{
     z-index:2000000500 !important;
     font-family: Avenir, sans-serif !important;
 }
+
+
+#he_tray_close{
+    top:10px !important;
+    left:357px !important;
+    position:fixed !important;
+    font-size:30px !important;
+    z-index:2000000021 !important;
+    cursor:pointer !important;
+    overflow:visible !important;
+    display:block !important;
+    height: 25px  !important;
+    width: 25px  !important;
+}
+
+#he_tray_close:hover .he_close_left{
+    background-color:rgb(255,255,255) !important;
+}
+#he_tray_close:hover .he_close_right{
+    background-color:rgb(255,255,255) !important;
+}
+
+.he_close_left{
+    transform:rotate(45deg) !important;
+    height:2px !important;
+    width:20px !important;
+    background-color: rgb(200,200,200) !important;
+    position:absolute !important;
+    left:0 !important;
+    top:0 !important;
+    overflow:visible !important;
+    margin-top:12px !important;
+}
+
+.he_close_right{
+    transform:rotate(-45deg) !important;
+    height:2px !important;
+    width:20px !important;
+    background-color: rgb(200,200,200) !important;
+    position:absolute !important;
+    left:0 !important;
+    top:0 !important;
+    overflow:visible !important;
+    margin-top:12px !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+

@@ -2,8 +2,8 @@ $(document).ready(function () {
 	window.tray_already_opened = false; 
 	chrome.runtime.onMessage.addListener(
 		function(request, sender, sendResponse) {
-			console.log($('#he_tray').length);
 			if (request.greeting == "please close the tray"){
+				
 				// Close the tray, remove all DOM elements and function handlers
 					
 					$('#add').remove();
@@ -77,7 +77,16 @@ $(document).ready(function () {
 
 						var trayUrl = chrome.extension.getURL('tray.html');
 						$("body").prepend("<div id='add' class='reset' data-omglol='yo' style='position:fixed;left:0;top:0;z-index:1999999999;'></div>");
-						$("#add").load(trayUrl, function(){});
+						$("#add").load(trayUrl, function(){
+							// Add the close button
+							var he_tray_close = "<div id='he_tray_close'>"+
+													"<div class='he_close_left'></div>"+
+													"<div class='he_close_right'></div>"+
+												"</div>";
+								// <img id='he_tray_close' width='17' unselectable='true' src='"+chrome.extension.getURL('close.png')+"' />";
+							$('#he_tray').append(he_tray_close);
+						});
+
 
 					// For elements w/ css property "left" & is position:fixed, 
 					// scoot it over 400px.
@@ -105,8 +114,6 @@ $(document).ready(function () {
 
 					// If the tray hasn't already been loaded, then we can attach handlers to everything. 
 					// Otherwise handlers will already exist
-
-					console.log(window.tray_already_opened);
 
 					if (window.tray_already_opened == false){
 						window.tray_already_opened = true;
@@ -422,6 +429,29 @@ $(document).ready(function () {
 
 						});
 
+						$(document).on('click', '#he_tray_close', function(e){ 
+							chrome.runtime.sendMessage({greeting: "close_button_clicked"}, function(response) {
+							});
+							// Close the tray, remove all DOM elements and function handlers
+								$('#add').remove();
+								$('#he_callout').remove();
+								$('.he_overlay').remove();
+								$("body").css("cssText", "margin-left: 0 !important; width: 100% !important; position:absolute !important; overflow:scroll !important; cursor: auto !important;");
+
+							// Move everything back over to the left
+
+								//$(document).mousemove(function(event){
+									$("body").find("*").not("#add >").not("#add").not(".he_overlay").not('#he_screenshot_preview').each(function(){
+										if($(this).css("left") && $(this).css("position") == "fixed" && $(this).attr("data-omglol") == "pushed"){
+											var left_css = parseInt($(this).css("left").replace(/[^-\d\.]/g, ''));
+											var new_left_css = (left_css-400)+"px";
+											$(this).css("left", new_left_css);
+											$(this).attr("data-omglol","pushed_back");
+										}
+									});
+								//});
+						});
+
 					  	// On click of "View progress", generate table 
 					  		
 					  		$(document).on('click', '#he_view_progress', function(e){ 
@@ -675,7 +705,7 @@ $(document).ready(function () {
 
 													// Move everything back over to the left
 
-														$(document).mousemove(function(event){
+														//$(document).mousemove(function(event){
 															$("body").find("*").not("#add >").not("#add").not(".he_overlay").not('#he_screenshot_preview').each(function(){
 																if($(this).css("left") && $(this).css("position") == "fixed" && $(this).attr("data-omglol") == "pushed"){
 																	var left_css = parseInt($(this).css("left").replace(/[^-\d\.]/g, ''));
@@ -684,7 +714,7 @@ $(document).ready(function () {
 																	$(this).attr("data-omglol","pushed_back");
 																}
 															});
-														});
+														//});
 
 
 
