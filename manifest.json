@@ -1,7 +1,7 @@
 {
   "name": "UX Check",
   "description": "Run a heuristic evaluation on your website",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "permissions": [
     "activeTab",
     "storage",
@@ -19,7 +19,7 @@
     "js": [ "jquery.min.js","jquery-ui.min.js", "content.js"],
     "run_at": "document_end"
   }],
-  "background": {
+  "background": {  
     "scripts": [ "jquery.min.js", "background.js"],
     "persistent": false
   },

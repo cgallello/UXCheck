@@ -44,30 +44,11 @@ $(document).ready(function () {
 					        $(window).width()
 					    ) - 400;
 
-					    var cards_array = [
-							"Visibility of system status",
-							"Match between system and the real world",
-							"User control and freedom",
-							"Consistency and standards",
-							"Error prevention",
-							"Recognition rather than recall",
-							"Flexibility and efficiency of use",
-							"Aesthetic and minimalist design",
-							"Help users recognize and recover from errors",
-							"Help and documentation",
-							"Other"
-						]
 
-						var evaluation_info = { 'heuristics':cards_array,
-						}
-
-						localStorage.setItem('cards_array', JSON.stringify(cards_array));
-
-						//var website_name = window.location.host;
-						var webpage_title = document.title;
-						var webpage_url = window.location;
 
 					// ========= UI INJECTION =========
+
+					// $('head').append('<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>');
 
 					// Scoot <body> over to the right by 400px
 
@@ -79,7 +60,7 @@ $(document).ready(function () {
 						$("body").prepend("<div id='add' class='reset' data-omglol='yo' style='position:fixed;left:0;top:0;z-index:1999999999;'></div>");
 						$("#add").load(trayUrl, function(){
 							// Add the close button
-							var he_tray_close = "<div id='he_tray_close'>"+
+							var he_tray_close = "<div id='he_tray_close' class='he_close_button'>"+
 													"<div class='he_close_left'></div>"+
 													"<div class='he_close_right'></div>"+
 												"</div>";
@@ -106,6 +87,100 @@ $(document).ready(function () {
 						$("body").append("<div class='he_overlay' id='hover_overlay_left'   style='left:0;top:0;width:0;height:0'></div>");
 						$("body").append("<div class='he_overlay' id='hover_overlay_right'  style='left:0;top:0;width:0;height:0'></div>");
 						$("body").append("<div class='he_overlay' id='hover_overlay_bottom' style='left:0;top:0;width:0;height:0'></div>");
+					
+					// Load previously saved data to insert heuristics
+
+
+						chrome.storage.local.get('he_settings_saved_data', function(result){ 
+							
+							// Unpack results
+								
+								if (result.he_settings_saved_data == undefined){
+									var he_settings_saved_data = [];
+									var new_settings = true;
+								} else {
+									var he_settings_saved_data = result.he_settings_saved_data;
+								}
+
+
+							// Set default data if no data exists
+
+							    if(he_settings_saved_data["overlay_color"] == undefined){
+							    	console.log('setting fresh data');
+									var he_settings_saved_data = 	{"overlay_color": "black",
+													   			 	 "heuristics_sets": [{ "set_name": "Nielsen's 10 Usability Heuristics",
+														   			 					  "active":true,
+														   			 					  "heuristics" : [
+																							   			 	{ "title": "Visibility of system status",
+																											  "details":"The system should keep users informed through appropriate feedback within reasonable time"
+																											},
+																											{ "title": "Match between system and the real world",
+																											  "details":"The system should speak the users' language rather than system-oriented terms. Follow real-world conventions"
+																											},
+																											{ "title": "User control and freedom",
+																											  "details":"Users often make mistakes and need 'emergency exits' to leave the unwanted state. Support undo and redo"
+																											},
+																											{ "title":"Consistency and standards",
+																											  "details":"Users shouldn't have to wonder whether different words, situations, or actions mean the same thing. Follow platform conventions"
+																											},
+																											{ "title":"Error prevention",
+																											  "details":"Prevent problems from occuring in the first place, or check for them and present users with a confirmation option before they commit to the action"
+																											},
+																											{ "title":"Recognition rather than recall",
+																											  "details":"Minimize memory load by making objects, actions, and options visible. Instructions should be visible or easily retrievable"
+																											},
+																											{ "title":"Flexibility and efficiency of use",
+																											  "details":"Accelerators - unseen by the novice user - may often speed up the interaction for the expert user. Allow users to tailor frequent actions"
+																											},
+																											{ "title":"Aesthetic and minimalist design",
+																											  "details":"Dialogues should not contain information which is irrelevant or rarely needed"
+																											},
+																											{ "title":"Help recognize & recover from errors",
+																											  "details":"Error messages should be expressed in plain language, indicate the problem, and suggest a solution"
+																											},
+																											{ "title":"Help and documentation",
+																											  "details":"Any necessary help documentation should be easy to search, focused on the user's task, list concrete steps to be carried out, and not be too large"
+																											},{"title":"Other", "details":""}
+																							  			 ]
+																						},
+																						{ "set_name": "Custom",
+														   			 					  "active":false,
+														   			 					  "heuristics" : []
+																						}]
+																	}
+								}
+
+							var overlay_color = he_settings_saved_data.overlay_color;
+
+							if(overlay_color == "white"){
+								$('.he_overlay').css('background-color', 'rgba(255,255,255,0.5)');
+							} else if(overlay_color == "black"){
+								$('.he_overlay').css('background-color', 'rgba(0,0,0,0.5)');
+							}
+
+							// Figure out the active heuristic set
+
+								for (var i in he_settings_saved_data.heuristics_sets){
+									if (he_settings_saved_data.heuristics_sets[i].active == true){
+										var active_set = i;
+									}
+								}
+
+							// Pull out the list of heuristics
+							// Put heuristics in side pane
+							populateHeuristicsInSidePane(he_settings_saved_data, active_set);
+
+								if (new_settings){
+									chrome.storage.local.set({'he_settings_saved_data': he_settings_saved_data});
+								}
+
+
+						});
+
+						//var website_name = window.location.host;
+						var webpage_title = document.title;
+						var webpage_url = window.location;
+
 					
 					// Callout creation
 
@@ -398,7 +473,6 @@ $(document).ready(function () {
 														}
 
 													// Add data
-
 														website_name = "hacker news";
 														saved_data[save_id] = 
 															{"website_name": website_name,
@@ -411,13 +485,9 @@ $(document).ready(function () {
 															"screenshot": save_screenshot};
 
 													// Save to local storage
-
 														chrome.storage.local.set({'saved_data': saved_data});
-														//localStorage.setItem('saved_data', JSON.stringify(saved_data));
-
 
 													// Close the callout
-														
 														close_callout();
 
 												});
@@ -484,7 +554,17 @@ $(document).ready(function () {
 										// Generate the table
 
 											function generateTable(saved_data){						
-												var insert_table = "<img id='he_progress_close' width='17' unselectable='true' src='"+chrome.extension.getURL('close.png')+"' /><h2>CURRENT PROGRESS</h2><table id='progress_table'><thead><tr><td>Screenshot</td><td>Heuristic</td><td>Severity</td><td>Notes</td><td>Recommendation</td></tr></thead>";
+												var insert_table = "<div id='he_progress_close' class='he_close_button'>"+
+																		"<div class='he_close_left'></div>"+
+																		"<div class='he_close_right'></div>"+
+																	"</div>"+
+																	"<h2>CURRENT PROGRESS</h2>"+
+																	"<table id='progress_table'>"+
+																		"<thead>"+
+																			"<tr>"+
+																				"<td>Screenshot</td><td>Heuristic</td><td>Severity</td><td>Notes</td><td>Recommendation</td>"+
+																			"</tr>"+
+																		"</thead>";
 												for (var i = 0; i < saved_data.length; i++){
 													insert_table = insert_table + "<tr class='he_progress_row'>";
 													insert_table = insert_table + "<td><img width='150' class='he_screenshot_preview' src='" + saved_data[i]['screenshot'] + "' /></td>";
@@ -560,7 +640,6 @@ $(document).ready(function () {
 												    saved_data.splice(index, 1);
 												}
 
-												//localStorage.setItem('saved_data', JSON.stringify(saved_data));
 												chrome.storage.local.set({'saved_data': saved_data});
 
 
@@ -596,7 +675,7 @@ $(document).ready(function () {
 
 											}); // end delete annotation
 
-									}); //end chrome.local.get callback
+									}); //end chrome.storage.local.get callback
 
 							}); // end onclick of  view_progress
 
@@ -611,17 +690,35 @@ $(document).ready(function () {
 
 					  			// Load previously saved data
 
-									chrome.storage.local.get('he_settings', function(result){ 
-										
-										// Unpack results
+									chrome.storage.local.get('he_settings_saved_data', function(result){ 
+										var he_settings_saved_data = result.he_settings_saved_data;
+										// Data structure under he_settings_saved_data
 
-											if (result.saved_data == undefined){
-												var he_settings_saved_data = [];
-												var save_id = 0;
-											} else {
-												var he_settings_saved_data = result.he_settings_saved_data;
-												var save_id = result.saved_data.length;
-											}
+										/*
+										var he_settings_saved_data = 	{"overlay_color": "black",
+													   			 	 "heuristics_sets": [{ "set_name": "Nielsen's 10 Usability Heuristics",
+														   			 					  "active":true,
+														   			 					  "heuristics" : [
+																							   			 	{ "title": "Visibility of system status",
+																											  "details":"The system should keep users informed through appropriate feedback within reasonable time"
+																											},
+																											{ "title": "Match between system and the real world",
+																											  "details":"The system should speak the users' language rather than system-oriented terms. Follow real-world conventions"
+																											}
+																							  			 ]
+																						},
+																						{ "set_name": "Custom",
+														   			 					  "active":false,
+														   			 					  "heuristics" : []
+																						}]
+																	}
+								
+										*/
+
+
+										// Unpack settings
+
+											var overlay_color_setting = he_settings_saved_data["overlay_color"];
 
 										// Create an overlay
 
@@ -629,9 +726,204 @@ $(document).ready(function () {
 											$('#he_settings').show();
 
 											
-										// Paint the table
+										// Paint the settings
 											$('#he_settings').empty();
-											$('#he_settings').html("<h2>SETTINGS</h2>");
+											$('#he_settings').html("<div id='he_settings_close' class='he_close_button'>"+
+																		"<div class='he_close_left'></div>"+
+																		"<div class='he_close_right'></div>"+
+																	"</div>"+
+																	"<h2>SETTINGS</h2>"+
+																	"<h3>OVERLAY COLOR</h3>"+
+																	"<select id='he_settings_overlay_color_select'>"+
+																		"<option value='black' id='overlay_black_option'>Black</option>"+
+																		"<option value='white' id='overlay_white_option'>White</option>"+
+																	"</select>"+
+																	"<h3>HEURISTICS SET</h3>"+
+																	"<select id='he_settings_heuristics_set_select'>"+
+																	"</select>");
+
+
+											if(overlay_color_setting == "black"){
+												$('#overlay_black_option').attr('selected', 'selected');
+											} else {
+												$('#overlay_white_option').attr('selected', 'selected');
+											}
+
+										// Figure out the active heuristic set
+										// Paint heuristic sets into select
+
+											for (var i in he_settings_saved_data.heuristics_sets){
+												var heuristics_set = he_settings_saved_data.heuristics_sets[i];
+												if (heuristics_set.active == true){
+													$('#he_settings_heuristics_set_select').append('<option value="'+heuristics_set.set_name+'" selected="selected">'+heuristics_set.set_name+'</option>');
+													populateHeuristicsInSettings (he_settings_saved_data, i);
+												} else{
+													$('#he_settings_heuristics_set_select').append('<option value="'+heuristics_set.set_name+'">'+heuristics_set.set_name+'</option>');
+												}
+											}
+
+										// Paint heuristics cards
+											function populateHeuristicsInSettings(he_settings_saved_data, active_set){
+
+												console.log("Populating Heuristics in Settings. Active_Set = "+active_set);
+
+												// Remove existing set from DOM
+													$('.he_settings_heuristic_card').remove();
+													$('.he_settings_new_heuristic_card').remove();
+
+												var heuristics = he_settings_saved_data.heuristics_sets[active_set].heuristics;
+
+												// If heuristics_set is Custom
+
+												if (he_settings_saved_data.heuristics_sets[active_set].set_name == "Custom"){
+													$('#he_settings').append('<div id="custom_cards_wrapper"></div>');
+													for (var j in heuristics){
+														$('#custom_cards_wrapper').append(	'<div class="he_settings_heuristic_card reset">'+
+																								'<h4 class="reset he_settings_heuristic_title">'+heuristics[j].title+'</h4>'+
+																								'<p class="reset he_settings_heuristic_text">'+heuristics[j].details+'</p>'+
+																								'<div class="custom_heuristic_delete_hover_zone"></div>'+
+																								'<button class="custom_heuristic_delete" data-delete-index="'+j+'">Delete</button>'+
+																							'</div>');
+													}
+													function addDeleteButton(he_settings_saved_data){
+
+														// Delete hover functionality
+
+															$('.he_settings_heuristic_card').hover(function(){
+																$(this).children('.custom_heuristic_delete').css('display', 'block');
+															}, function(){
+																if (!$(this).children('.custom_heuristic_delete_hover_zone').is(":hover")){
+																	$(this).children('.custom_heuristic_delete').css('display', 'none');
+																}
+															});
+
+														// Delete functionality
+
+															$('.custom_heuristic_delete').click(function(){
+
+																// Figure out what to delete and delete it
+																	var index = $(this).attr('data-delete-index');
+																	$(this).parent().remove();
+																	he_settings_saved_data.heuristics_sets[active_set].heuristics.splice(index, 1);
+																	chrome.storage.local.set({'he_settings_saved_data': he_settings_saved_data});
+
+																// Change index of everything after the deleted
+																	var index = 0;
+																	$('#custom_cards_wrapper').children().each(function(){
+																		$(this).children('button').attr('data-delete-index', index);
+																		index += 1;
+																	})
+
+																// Update side panel 
+																	populateHeuristicsInSidePane(he_settings_saved_data, active_set);
+
+															});
+													}
+
+													addDeleteButton(he_settings_saved_data);
+
+													// Append input UI
+
+														$('#he_settings').append('<div class="he_settings_new_heuristic_card reset">'+
+																					'<h4 id="he_settings_heuristic_card_h4">ADD NEW ITEM</h3>'+
+																					'<h5 class="reset he_settings_heuristic_title">Title</h4>'+
+																					'<input id="custom_heuristic_title"></input>'+
+																					'<h5 class="reset he_settings_heuristic_title">Details</h4>'+
+																					'<textarea id="custom_heuristic_details"></textarea>'+
+																					'<div id="he_settings_heuristic_buttons">'+
+																						'<button id="custom_heuristic_save" tabindex="0">Save</button>'+
+																					'</div>'+
+																				 '</div>')
+													// Save button click
+
+														$('#custom_heuristic_save').click(function(){
+															var title = $('#custom_heuristic_title').val();
+															var details = $('#custom_heuristic_details').val();
+															
+															//If the title field isn't empty
+															if(title.length > 0){
+
+																// Add new card to the UI
+																	var index = $('.he_settings_heuristic_card').length;
+																	$('#custom_cards_wrapper').append('<div class="he_settings_heuristic_card reset">'+
+																													'<h4 class="reset he_settings_heuristic_title">'+title+'</h4>'+
+																													'<p class="reset he_settings_heuristic_text">'+details+'</p>'+
+																													'<div class="custom_heuristic_delete_hover_zone"></div>'+
+																													'<button class="custom_heuristic_delete" data-delete-index="'+index+'">Delete</button>'+
+																												'</div>');
+																	$('#custom_heuristic_title').val("");
+																	$('#custom_heuristic_details').val("");
+
+																// Add new entry to saved data
+																for (var i in he_settings_saved_data.heuristics_sets){
+																	if (he_settings_saved_data.heuristics_sets[i].set_name == "Custom"){
+																		var number_of_heuristics = he_settings_saved_data.heuristics_sets[i].heuristics.length;
+																		he_settings_saved_data.heuristics_sets[i].heuristics[number_of_heuristics] = {"title":title, "details":details};
+																	}
+																}
+
+																// Add a delete button
+																	addDeleteButton(he_settings_saved_data);
+
+																// Focus back on the input
+																	$('#custom_heuristic_title').focus();
+
+																// Save to local storage and update side pane
+																	chrome.storage.local.set({'he_settings_saved_data': he_settings_saved_data});
+																	populateHeuristicsInSidePane(he_settings_saved_data, active_set);
+															
+															} else { // If title field is empty
+																// put red outline around title field
+															}
+														});
+
+												} else { // If heuristics_set is not custom, just paint a list of heuristics
+													for (var j in heuristics){
+														$('#he_settings').append(	'<div class="he_settings_heuristic_card reset">'+
+																						'<h4 class="reset he_settings_heuristic_title">'+heuristics[j].title+'</h4>'+
+																						'<p class="reset he_settings_heuristic_text">'+heuristics[j].details+'</p>'+
+																					'</div>');
+													}
+
+												}
+													
+											}
+
+										// Overlay color setting
+											$('#he_settings_overlay_color_select').change(function(){
+												if($( this ).val() == "white"){
+													$('.he_overlay').css('background-color', 'rgba(255,255,255,0.5)');
+												} else if($( this ).val() == "black"){
+													$('.he_overlay').css('background-color', 'rgba(0,0,0,0.5)');
+												}
+												he_settings_saved_data["overlay_color"] = $(this).val();
+												
+												chrome.storage.local.set({'he_settings_saved_data': he_settings_saved_data});
+											});
+
+										// On change of heuristics select
+
+											$('#he_settings_heuristics_set_select').change(function(){
+
+												// Figure out which set was chosen
+													for (var k in he_settings_saved_data.heuristics_sets){
+														if (he_settings_saved_data.heuristics_sets[k].set_name == $(this).val()){
+															var active_set = k;
+															he_settings_saved_data.heuristics_sets[k].active = true;
+														} else {
+															he_settings_saved_data.heuristics_sets[k].active = false;
+														}
+													}
+												// Save which set is active
+													chrome.storage.local.set({'he_settings_saved_data': he_settings_saved_data});
+												
+												// Add heuristics to DOM
+													populateHeuristicsInSettings(he_settings_saved_data, active_set);
+
+												// Add heuristics to side pane
+													populateHeuristicsInSidePane(he_settings_saved_data, active_set);
+											});
+
 
 										// Close the View Progress table
 											$('#he_settings_close').click(function(){
@@ -641,7 +933,7 @@ $(document).ready(function () {
 												window.hover_enabled = true;
 											});
 
-									}); //end chrome.local.get callback
+									}); //end chrome.storage.local.get callback
 
 							}); // end onclick of  view_progress
 
@@ -716,21 +1008,13 @@ $(document).ready(function () {
 															});
 														//});
 
-
-
-
 													chrome.runtime.sendMessage({greeting: "stop_evaluation", html: docx_html}, function(response) {
 
 													});
 													
 													chrome.storage.local.set({'saved_data': null});
 
-													
-
-
-
 												});	
-								
 						      	} 
 							});
 					}
@@ -754,6 +1038,18 @@ function hide_overlays(){
 	$("#hover_overlay_left").css({"top": "0","left": "0", "width": "0px", "height": "0px"});
 	$("#hover_overlay_right").css({"top": "0","left": "0", "width": "0px", "height": "0px"});
 	$("#hover_overlay_bottom").css({"top": "0","left": "0", "width": "0px", "height": "0px"});
+}
+
+function populateHeuristicsInSidePane(he_settings_saved_data, active_set){
+	console.log("Populating Heuristics in Side Pane. Active_Set = "+active_set);
+	var heuristics = he_settings_saved_data.heuristics_sets[active_set].heuristics;
+	$('.he_card').remove();
+	for (var j in heuristics){
+		$('#he_card_container').append(	'<div class="he_card reset" tabindex="0">'+
+											'<h2 class="reset he_card_title">'+heuristics[j].title+'</h2>'+
+											'<p class="reset he_card_text">'+heuristics[j].details+'</p>'+
+										'</div>')
+	}
 }
 
 
