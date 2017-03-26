@@ -49,34 +49,7 @@ window.evaluation_in_progress = false;
 // From popup.js
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-
-    /*// Start evaluation
-
-    if (request.greeting == "open the tray"){
-
-      console.log('i received a message from popup.js telling me to open the tray');
-      if (evaluation_in_progress == false){
-        window.evaluation_in_progress = true;
-
-        //Google Analytics
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-        ga('create', 'UA-57672068-1', 'auto');
-        ga('set', 'checkProtocolTask', function(){}); // Disable file protocol checking.
-        ga('require', 'displayfeatures');
-        ga('send', 'pageview', '/options.html');
-
-
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-          chrome.tabs.sendMessage(tabs[0].id, {greeting: "please open the tray"}, function(response) {
-            //console.log('i got a response that says'+response);
-            //sendResponse({farewell: "okay"});
-          });
-        });
-      }
-    }*/
+    console.log('background.js recieved the request, ' + request.greeting);
 
     // Close button clicked, evaluation stopped
 
@@ -102,6 +75,7 @@ chrome.runtime.onMessage.addListener(
     if (request.greeting == "take_screenshot"){
       chrome.tabs.captureVisibleTab(null,{},function(dataUrl){
         window.screenshot = dataUrl;
+        console.log(window.screenshot);
         sendResponse({farewell: window.screenshot});
       });
       return true;
@@ -131,25 +105,8 @@ chrome.runtime.onMessage.addListener(
 
     if (request.greeting == "gimme_evaluation_info"){
       sendResponse({greeting: "heres_ur_data", evalInfo: window.evaluation_html});
-      //chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        //chrome.tabs.sendMessage(tabs[0].id, {greeting: "heres_ur_data", evalInfo: window.evaluation_html}, function(response) {
-          //sendResponse({farewell: "okay"});
-        //});
-      //});
     }
   }
 );
-
-/*
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-57672068-1']);
-_gaq.push(['_trackPageview']);
-
-(function() {
-  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-  ga.src = 'https://ssl.google-analytics.com/ga.js';
-  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();*/
-
 
 
