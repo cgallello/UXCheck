@@ -30,14 +30,17 @@ $(document).ready(function () {
 				
 				if ($('#he_tray').length == 0){
 					// Get/Set datetime
-					chrome.storage.local.get('ux_check_last_opened', function(result){
+					chrome.storage.local.get(['ux_check_last_opened', 'purple_upsell_shown'], function(result){
 						
 						// Get and reset last opened date
 						var ux_check_last_opened = result.ux_check_last_opened;
 						chrome.storage.local.set({'ux_check_last_opened': Date.now() });//Date.now() });
-							
+
+						// Get if purple upsell has been shown
+						var purple_upsell_shown = result.purple_upsell_shown;
+
 						// Set flags and get values for later
-						//var ux_flow_survey_shown = result.ux_flow_survey_shown;
+						
 						window.hover_enabled = true; // Are we in 'hover mode'?
 						var margin_top = parseInt($('body').css("margin-top").replace(/[^-\d\.]/g, '')); // some websites are dumb and add margin-top to body
 
@@ -186,30 +189,94 @@ $(document).ready(function () {
 									}
 								});
 							});
-							/*if (ux_check_last_opened != null){
-								if (ux_flow_survey_shown != true){
-									$('#add').append(	'<div id="ux_flow_dialog_background">'+
-															'<div id="ux_flow_sept_survey_dialog">'+
-																'<h1>I&#39;d love your thoughts on my next tool - $50 Amazon Gift Card raffle</h1>'+
-																'<p>Hey, I&#39;m Chris, the maker of UX Check! I&#39;m currently working on a new tool that complements UX Check, and I&#39;m trying to understand what other UX tools people are using. If you like UX Check and want to help me build a tool that you&#39;ll love, please fill out this survey. As a thank you, you&#39;ll be entered into a raffle for a $50 Amazon gift card.</p>'+
-																'<br /><p>Thank you!</p>'+
-																'<p>Chris Gallello (<a style="color:white;text-decoration:underline;" target="blank_" href="http://www.twitter.com/cgallello">@cgallello</a>)</p>'+
-																'<div id="survey_remind_me" class="survey_button">Remind me later</div>'+
-																'<a target="_blank" href="https://docs.google.com/forms/d/1mKE5Q3ysn8oHLNdoJWbGBfWU1EqT9StQ-42MdC1yGSk/viewform?embedded=true" id="survey_new_tab" class="survey_button">Open survey in a new tab</a>'+
-																'<div id="ux_flow_survey_dialog_close" class="survey_button">No thanks!</div>'+
-																'<iframe src="https://docs.google.com/forms/d/1mKE5Q3ysn8oHLNdoJWbGBfWU1EqT9StQ-42MdC1yGSk/viewform?embedded=true" width="760" height="500" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>'+
+
+							// If UX Check has been opened but dialog has not been open
+							if(typeof ux_check_last_opened !== 'undefined'){
+								if (typeof purple_upsell_shown === 'undefined'){
+
+									// Fire analytics
+									chrome.runtime.sendMessage({greeting: "Fire Mixpanel: Purple upsell dialog shown"}, function(response) {});
+
+									// Show dialog
+									var videoUrl = chrome.extension.getURL('PurpleDemoLMS.mp4');
+									var restartUrl = chrome.extension.getURL('restart.png');
+									$('#add').append(	'<div id="purple_dialog_background">'+
+															'<div id="purple_dialog">'+
+																'<p>Hey there,</p>' + 
+																"<p>I'm Chris - the creator of UX Check. Just want to share something that I'm <b>so excited</b> about! For the past year, I've been working with a great team of developers to build a new design tool called Purple. It lets you create all-in-one boards that contain lists, documents, presentations, designs, and prototypes, so all of your project work is in one place - not scattered around 20 different tabs. And we integrate with Google Docs, Sketch, Invision, and Marvel, so you don't have to give up your existing tools.</p>" +
+																"<p>Purple is now open as a free public beta. I might be biased, but it's freaking awesome, and makes planning projects much easier. Go check it out!</p>" + 
+																'<p>Chris</p>'+
+
+
+																'<div class="purple_video_container">'+
+																	'<video id="purple_demo_video" autoplay="autoplay" loop>'+
+																		'+<source src="' + videoUrl + '".mp4" type="video/mp4">'+
+																	'</video>'+
+																	'<div class="purple_video_subtitle" id="purple_subtitle_5"><span>Sync Sketch files.</span></div>' + 
+																	'<div class="purple_video_subtitle" id="purple_subtitle_4"><span>Embed prototypes.</span></div>' + 
+																	'<div class="purple_video_subtitle" id="purple_subtitle_3"><span>Write documents.</span></div>' + 
+																	'<div class="purple_video_subtitle" id="purple_subtitle_2"><span>Create lists.</span></div>' + 
+																	'<div class="purple_video_subtitle" id="purple_subtitle_1" style="display:block;"><span>Everything is laid out as a card.</span></div>' + 
+																'</div>' +
+																'<div id="purple_video_controls">' + 
+																	'<button id="purple_video_restart"><img src="' + restartUrl + '" width="16" /> Restart</button>' + 
+																'</div>'+
+
+																'<div style="width:100%;display:flex;"><a id="purple_CTA_button" target="_blank" href="http://www.purple.li?utm_source=uxcheck">Check out Purple - free beta</a></div>' +
+
+																'<div id="purple_dialog_close" class="survey_button">Close</div>'+
 															'</div>'+
 														'</div>');
-									$('#ux_flow_survey_dialog_close').click(function(){
-										$('#ux_flow_dialog_background').remove();
-										chrome.storage.local.set({'ux_flow_survey_shown': true });
-									});
-									$('#survey_remind_me').click(function(){
-										$('#ux_flow_dialog_background').remove();
+
+									// Handle video subtitles
+									var videoSubtitleInterval = setInterval(function(){
+										currentDemoTime = document.querySelector('#purple_demo_video').currentTime;
+										if(currentDemoTime > 38) {
+							                $('#purple_subtitle_4').fadeOut();
+							                $('#purple_subtitle_5').fadeIn();
+							            }
+										else if(currentDemoTime > 19) {
+							                $('#purple_subtitle_3').fadeOut();
+							                $('#purple_subtitle_4').fadeIn();
+							            }
+										else if(currentDemoTime > 12) {
+							                $('#purple_subtitle_2').fadeOut();
+							                $('#purple_subtitle_3').fadeIn();
+							            }
+										else if(currentDemoTime > 9) {
+							                $('#purple_subtitle_1').fadeOut();
+							                $('#purple_subtitle_2').fadeIn();
+							            } else if(currentDemoTime < 9) {
+							                $('#purple_subtitle_5').fadeOut();
+							                $('#purple_subtitle_1').fadeIn();
+							            }
+									}, 1000);
+
+									// Video restart button 
+									$('#purple_video_restart').click(function(){
+										document.querySelector('#purple_demo_video').currentTime = 0;
+						                $('#purple_subtitle_5').fadeOut();
+						                $('#purple_subtitle_4').fadeOut();
+						                $('#purple_subtitle_3').fadeOut();
+						                $('#purple_subtitle_2').fadeOut();
+						                $('#purple_subtitle_1').fadeIn();
 									});
 
-									$('#survey_new_tab').click(function(){
-										chrome.storage.local.set({'ux_flow_survey_shown': true });
+									// Close button
+									$('#purple_dialog_close').click(function(){
+										$('#purple_dialog_background').remove();
+										clearInterval(videoSubtitleInterval);
+										chrome.storage.local.set({'purple_upsell_shown': true });
+									});
+
+									// Open Purple in a new window
+									$('#purple_CTA_button').click(function(){
+										// Fire analytics
+										chrome.runtime.sendMessage({greeting: "Fire Mixpanel: Purple upsell CTA clicked"});
+
+										clearInterval(videoSubtitleInterval);
+										chrome.storage.local.set({'purple_upsell_shown': true });
+
 										chrome.runtime.sendMessage({greeting: "close_button_clicked"}, function(response) {});
 										// Close the tray, remove all DOM elements and function handlers
 											$('#add').remove();
@@ -227,25 +294,26 @@ $(document).ready(function () {
 												}
 											});
 									});
+
 								}
 
-							}*/
-							/*if (ux_check_last_opened == 0){
-								$('#add').append(	'<div id="new_features_dialog">'+
-														'<div id="new_features_dialog_left">'+
-															'<p>'+
-																'<b style="margin-right:20px;">New features!</b>'+
-															'</p>'+
-															'<p>Custom heuristic lists that you can export and share with teammates, a white overlay theme, bug fixes, and more.</p>'+
-														'</div>'+
-														'<div id="new_features_dialog_right">'+
-															'<button id="new_features_dialog_close">Close</button>'+
-														'</div>'+
-													'</div>');
-								$('#new_features_dialog_close').click(function(){
-									$('#new_features_dialog').remove();
-								})
-							}*/
+							}
+							// if (ux_check_last_opened == 0){
+							// 	$('#add').append(	'<div id="new_features_dialog">'+
+							// 							'<div id="new_features_dialog_left">'+
+							// 								'<p>'+
+							// 									'<b style="margin-right:20px;">New features!</b>'+
+							// 								'</p>'+
+							// 								'<p>Custom heuristic lists that you can export and share with teammates, a white overlay theme, bug fixes, and more.</p>'+
+							// 							'</div>'+
+							// 							'<div id="new_features_dialog_right">'+
+							// 								'<button id="new_features_dialog_close">Close</button>'+
+							// 							'</div>'+
+							// 						'</div>');
+							// 	$('#new_features_dialog_close').click(function(){
+							// 		$('#new_features_dialog').remove();
+							// 	})
+							// }
 
 						});
 
@@ -455,7 +523,6 @@ $(document).ready(function () {
 							// Save button --> click
 							$(document).on('click', '#he_callout_save', function(e){ 
 
-								console.log('save button clicked');
 								// Take a screenshot when clicking on a heuristic
 								window.hover_enabled = false;
 								$('#he_callout').css({'left':'0', 'top':'0', 'display':'none'});
@@ -464,9 +531,8 @@ $(document).ready(function () {
 								// still appears in the screenshots because 
 								// Chrome hasn't finished painting the css change. ugh. 
 								setTimeout(function(){
-									console.log('setTimeout Running');
 									chrome.runtime.sendMessage({greeting: "take_screenshot"}, function(response) {
-										console.log('chrome runtime send message called and returned');
+										// console.log('chrome runtime send message called and returned');
 
 										// Show save notification
 										$('#add').append('<div class="he_notification_container"><div class="he_notification">Screenshot saved</div></div>');
@@ -504,7 +570,6 @@ $(document).ready(function () {
 											// save image & remove canvas
 											var cropped_screenshot = canvas.toDataURL("image/jpg");
 
-											console.log(canvas);
 											$('#crop_canvas').remove();
 
 											// === Save data to json ===
@@ -965,7 +1030,6 @@ $(document).ready(function () {
 						    	var r = window.confirm("This will end your evaluation, and you won't be able to go back & continue. Press ok if you're sure you're all finished.");
 						      	if (r == true){
 									chrome.storage.local.get('saved_data', function(result){ 
-														
 										// Unpack results
 
 											if (result.saved_data == undefined){
@@ -1019,18 +1083,16 @@ $(document).ready(function () {
 
 										// Move everything back over to the left
 
-											//$(document).mousemove(function(event){
-												$("body").find("*").not("#add >").not("#add").not(".he_overlay").not('#he_screenshot_preview').each(function(){
-													if($(this).css("left") && $(this).css("position") == "fixed" && $(this).attr("data-omglol") == "pushed"){
-														var left_css = parseInt($(this).css("left").replace(/[^-\d\.]/g, ''));
-														var new_left_css = (left_css-400)+"px";
-														$(this).css("left", new_left_css);
-														$(this).attr("data-omglol","pushed_back");
-													}
-												});
-											//});
+											$("body").find("*").not("#add >").not("#add").not(".he_overlay").not('#he_screenshot_preview').each(function(){
+												if($(this).css("left") && $(this).css("position") == "fixed" && $(this).attr("data-omglol") == "pushed"){
+													var left_css = parseInt($(this).css("left").replace(/[^-\d\.]/g, ''));
+													var new_left_css = (left_css-400)+"px";
+													$(this).css("left", new_left_css);
+													$(this).attr("data-omglol","pushed_back");
+												}
+											});
 
-										chrome.runtime.sendMessage({greeting: "stop_evaluation", html: docx_html}, function(response) {});
+										chrome.runtime.sendMessage({greeting: "stop_evaluation", html: docx_html, annotations: num_of_heuristics}, function(response) {});
 										
 										chrome.storage.local.set({'saved_data': null});
 

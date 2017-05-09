@@ -1,7 +1,7 @@
 {
   "name": "UX Check",
   "description": "Run a heuristic evaluation on your website",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "permissions": [
     "activeTab",
     "storage",
@@ -35,6 +35,8 @@
     "tray.html",
     "menu.png",
     "plus.png",
+    "restart.png",
+    "PurpleDemoLMS.mp4",
     "FileSaver.js",
     "jszip.js",
     "jszip-deflate.js",
@@ -47,5 +49,6 @@
     "close.png"
   ],
   "manifest_version": 2,
-  "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'"
+  "content_security_policy": "script-src 'self' https://www.google-analytics.com/analytics.js https://ssl.google-analytics.com https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js; object-src 'self'"
 }
+
